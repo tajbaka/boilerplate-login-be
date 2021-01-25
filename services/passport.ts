@@ -60,36 +60,36 @@ const googleLogin = new OAuthStrategy.OAuth2Strategy({
         const { familyName: lastName, givenName: firstName } = profile.name;
         UserModel.findOne({ email }, (err: any, user: any) => {
             if(err) return done(err, false);
-                if(!user) {
-                    UserModel.find().sort({ counter: -1 }).limit(1).then((element: any) => {
-                        let counter = 0;
-                        if(element.length > 0){
-                            counter =  element[0].counter + 1; 
-                        }
-                        const userModel = new UserModel({
-                            googleId: profile.id,
-                            email,
-                            firstName,
-                            lastName,
-                            counter
-                        });
+            if(!user) {
+                UserModel.find().sort({ counter: -1 }).limit(1).then((element: any) => {
+                    let counter = 0;
+                    if(element.length > 0){
+                        counter =  element[0].counter + 1; 
+                    }
+                    const userModel = new UserModel({
+                        googleId: profile.id,
+                        email,
+                        firstName,
+                        lastName,
+                        counter
+                    });
 
-                        userModel.save((err: any) => {
-                            if(err){
-                                return done(err, false);
-                            }
-                            return done(null, userModel);
-                        });
+                    userModel.save((err: any) => {
+                        if(err){
+                            return done(err, false);
+                        }
+                        return done(null, userModel);
                     });
-                }
-                else {
-                    user.firstName = firstName;
-                    user.lastName = lastName;
-                    user.googleId = profile.id;
-                    user.save((err: any) => {
-                        return done(null, user);
-                    });
-                }
+                });
+            }
+            else {
+                user.firstName = firstName;
+                user.lastName = lastName;
+                user.googleId = profile.id;
+                user.save((err: any) => {
+                    return done(null, user);
+                });
+            }
         });
   }
 );
@@ -105,16 +105,23 @@ const facebookLogin = new FacebookStrategy.Strategy({
         const { displayName, id: facebookId } = profile;
 
         if(!user) {
-            const userModel = new UserModel({
-                displayName,
-                facebookId
-            });
-
-            userModel.save((err: any) => {
-                if(err){
-                    return done(err, false);
+            UserModel.find().sort({ counter: -1 }).limit(1).then((element: any) => {
+                let counter = 0;
+                if(element.length > 0){
+                    counter =  element[0].counter + 1; 
                 }
-                return done(null, userModel);
+                const userModel = new UserModel({
+                    displayName,
+                    facebookId,
+                    counter
+                });
+
+                userModel.save((err: any) => {
+                    if(err){
+                        return done(err, false);
+                    }
+                    return done(null, userModel);
+                });
             });
         }
         
